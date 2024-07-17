@@ -1,10 +1,13 @@
 // HomeScreen.js
 import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, FlatList } from 'react-native'
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+export default HomeScreen = ({navigation  
 
-export default HomeScreen = () => {
+}) => {
   options = [
-    { id: 1, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png' },
+    { id: 0, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png', path: 'Add_renter' },
     {
       id: 1,
       title: 'Update Rentor',
@@ -14,18 +17,11 @@ export default HomeScreen = () => {
     { id: 3, title: 'modify Rent', image: 'https://img.icons8.com/color/70/000000/facebook-like.png' },
     { id: 4, title: 'View Rent', image: 'https://img.icons8.com/color/70/000000/shutdown.png' },
     { id: 5, title: 'View Pending Rent', image: 'https://img.icons8.com/color/70/000000/traffic-jam.png' },
-  /*  {
-      id: 6,
-      title: 'Option 7',
-      image: 'https://img.icons8.com/dusk/70/000000/visual-game-boy.png',
-    },
-    { id: 8, title: 'Option 8', image: 'https://img.icons8.com/flat_round/70/000000/cow.png' },
-    { id: 9, title: 'Option 9', image: 'https://img.icons8.com/color/70/000000/coworking.png' },
-    { id: 9, title: 'Option 10', image: 'https://img.icons8.com/nolan/70/000000/job.png' },*/
   ]
 
-  constclickEventListener = () => {
-    Alert.alert('Option selected')
+  const clickEventListener = (item) => {
+    Alert.alert('Option selected', item.title);
+    navigation.navigate(item.path);
   }
 
   return (

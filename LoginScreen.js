@@ -10,15 +10,15 @@ const LoginScreen = ({ navigation }) => {
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  console.log('E MAIL', email);
-  console.log('Password', password);
+ // console.log('E MAIL', email);
+ // console.log('Password', password);
   const dataToSend = { username: email, password: password };
-
+/*
   console.log('*****'+JSON.stringify(   dataToSend//{ 
     //  cust_mob: '9960059223',
      // password: 'padnyaj'
   //  }
-  ));
+  ));*/
     const handleLogin = async () => {
     //  console.log('E MAIL', email);
     //  console.log('pwd', password);
@@ -41,8 +41,8 @@ const LoginScreen = ({ navigation }) => {
       }); 
       
       const data = await response.json();
-      console.log('*****'+response.status);
-      console.log('*****'+data);
+    //  console.log('*****'+response.status);
+     // console.log('*****'+data);
      /* 
       console.log(JSON.stringify(dataToSend));
        fetch("http://192.168.1.114:8082/adnya/login", {
@@ -88,7 +88,7 @@ const LoginScreen = ({ navigation }) => {
   return (
 
     <View style={styles.container}>
-			  <Image style={styles.image} source={require("./assets/log2.png")} /> 
+			  <Image style={styles.image} source={require("./assets/Adnya_tech_logo.png")} /> 
 			  <StatusBar style="auto" />
 			  <View style={styles.inputView}>
 						<TextInput
@@ -156,13 +156,13 @@ const styles = StyleSheet.create({
   marginBottom: 30,
   },
   loginBtn: {
-  width: "80%",
+  width: "40%",
   borderRadius: 25,
   height: 50,
   alignItems: "center",
   justifyContent: "center",
   marginTop: 40,
-  backgroundColor: "#FF1493",
+  backgroundColor: "#FF1493",  
   },
 });
 
