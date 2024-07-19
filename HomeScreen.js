@@ -7,7 +7,7 @@ export default HomeScreen = ({navigation
 
 }) => {
   options = [
-    { id: 0, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png', path: 'Add_renter' },
+    { id: 0, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png', path: 'Add_bldg' },
     {
       id: 1,
       title: 'Update Rentor',
