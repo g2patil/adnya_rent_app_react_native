@@ -94,7 +94,7 @@ const LoginScreen = ({ navigation }) => {
 						<TextInput
 						  style={styles.TextInput}	
               placeholder="Email/Mobile Number."
-						  placeholderTextColor="#003f5c"
+						  placeholderTextColor="#f8c471"
 						  onChangeText={(text) => setEmail(text)}
 						/> 
 			  </View> 
@@ -102,7 +102,7 @@ const LoginScreen = ({ navigation }) => {
 				<TextInput
 				  style={styles.TextInput}
 				  placeholder="Password."
-				  placeholderTextColor="#003f5c"
+				  placeholderTextColor="#f8c471"
 				  secureTextEntry={true}
 				  onChangeText={(password) => setPassword(password)}
 				/> 
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   marginBottom: 40,
   },
   inputView: {
-  backgroundColor: "#FFC0CB",
+  backgroundColor: "#f8c471",
   borderRadius: 30,
   width: "70%",
   height: 45,
@@ -158,11 +158,12 @@ const styles = StyleSheet.create({
   loginBtn: {
   width: "40%",
   borderRadius: 25,
-  height: 50,
+  height:40,
   alignItems: "center",
   justifyContent: "center",
   marginTop: 40,
-  backgroundColor: "#FF1493",  
+  backgroundColor: "#f39c12",  
+  placeholderTextColor: "#f8c471",
   },
 });
 

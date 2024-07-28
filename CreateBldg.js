@@ -10,7 +10,7 @@
     const CreateBldg = ({ navigation }) => {
       const [bldg_name, setName] = useState('');
       const [bldg_loc, setbldg_loc] = useState('');
-      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc };
+      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc, uid: 301 };
       console.log('*****'+JSON.stringify(   dataToSend//{ 
         //  cust_mob: '9960059223',
          // password: 'padnyaj'
@@ -26,9 +26,25 @@
         }
     
         // Add your registration logic here
+
+         fetch('http://192.168.1.114:8082/adnya/register/bldg', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(   dataToSend//{ 
+          //  cust_mob: '9960059223',
+           // password: 'padnyaj'
+        //  }
+        ),
+        }); 
+
+        
+
+
     
         Alert.alert('Success', 'Registration successful');
-        navigation.navigate('Home');
+      //  navigation.navigate('Home');
       };
     
       return (
