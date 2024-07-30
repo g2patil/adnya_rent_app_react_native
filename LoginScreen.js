@@ -42,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
       
       const data = await response.json();
     //  console.log('*****'+response.status);
-     // console.log('*****'+data);
+      console.log('*****'+data);
      /* 
       console.log(JSON.stringify(dataToSend));
        fetch("http://192.168.1.114:8082/adnya/login", {
