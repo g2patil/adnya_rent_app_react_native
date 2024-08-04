@@ -4,13 +4,14 @@
 
  
 
-    import React, { useState } from 'react';
+    import React, { useContext, useState } from 'react';
     import { StyleSheet, Text,Button, View, TextInput, TouchableOpacity, Alert } from 'react-native';
-    
-    const CreateBldg = ({ navigation }) => {
+    import { UserContext } from './UserContext';
+    const CreateBldg = ({ navigation,setUser_id }) => {
+      const { user_id } = useContext(UserContext); 
       const [bldg_name, setName] = useState('');
       const [bldg_loc, setbldg_loc] = useState('');
-      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc, uid: 301 };
+      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc, uid: user_id };
       console.log('*****'+JSON.stringify(   dataToSend//{ 
         //  cust_mob: '9960059223',
          // password: 'padnyaj'

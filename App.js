@@ -6,10 +6,13 @@ import LoginScreen from './LoginScreen';
 import HomeScreen from './HomeScreen';
 import OtherScreen from './OtherScreen';
 import CreateBldg from './CreateBldg';
+import { UserProvider } from './UserContext';
+
 const Stack = createStackNavigator();
 
 const App = () => {
   return (
+    <UserProvider>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
@@ -17,6 +20,7 @@ const App = () => {
         <Stack.Screen name="Add_bldg" component={CreateBldg} />
       </Stack.Navigator>
     </NavigationContainer>
+    </UserProvider>
   );
 };
 

@@ -1,15 +1,18 @@
 // LoginScreen.js
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {Image,
-  
-  TouchableOpacity,StyleSheet, View, Text, Button 		,  TextInput} from 'react-native';
 
+  TouchableOpacity,StyleSheet, View, Text, Button 		,  TextInput} from 'react-native';
+import CreateBldg from "./CreateBldg";
+import { UserContext } from './UserContext';
 const LoginScreen = ({ navigation }) => {
    
-  
+  //const [user_id, setUser_id] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setUser_id } = useContext(UserContext); 
  // console.log('E MAIL', email);
  // console.log('Password', password);
   const dataToSend = { username: email, password: password };
@@ -34,31 +37,14 @@ const LoginScreen = ({ navigation }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(   dataToSend//{ 
-        //  cust_mob: '9960059223',
-         // password: 'padnyaj'
-      //  }
-      ),
+             ),
       }); 
       
       const data = await response.json();
     //  console.log('*****'+response.status);
       console.log('*****'+data);
      /* 
-      console.log(JSON.stringify(dataToSend));
-       fetch("http://192.168.1.114:8082/adnya/login", {
-      method: "POST",
-      headers: {
-      "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSend),
-     })  
-      .then(response => response.json())
-      .then(data => {
-         console.log(data);
-        })
-       .catch(error => {
-      console.error('Error:', error);
-      });
+     
        */
        console.log("STATUS : "+response.ok);
        console.log("DATA : "+data);
@@ -79,10 +65,10 @@ const LoginScreen = ({ navigation }) => {
       const data1 = await response1.json();
     //  console.log('*****'+response.status);
     //  setId(data1.id); // Store the id globally  
-
+      setUser_id(data1.id);
       console.log('DDDDDDDDD'+data1.id);
       console.log('Data as string:', JSON.stringify(data1, null, 2));
-
+       
        /************ */
 
         navigation.navigate("Menu");  
@@ -102,11 +88,13 @@ const LoginScreen = ({ navigation }) => {
 
 
   return (
+  
 
     <View style={styles.container}>
 			  <Image style={styles.image} source={require("./assets/Adnya_tech_logo.png")} /> 
 			  <StatusBar style="auto" />
 			  <View style={styles.inputView}>
+       
 						<TextInput
 						  style={styles.TextInput}	
               placeholder="Email/Mobile Number."
