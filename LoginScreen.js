@@ -67,8 +67,24 @@ const LoginScreen = ({ navigation }) => {
 
 
       if (/*response.ok*/ response.status==200 && data==true ) {  
-       // if (email=="9960059223" &&  password=="jtp123" ) {
-        // If login successful, navigate to MenuScreen
+       /************* */
+       const response1 = await fetch('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+       
+      }); 
+      
+      const data1 = await response1.json();
+    //  console.log('*****'+response.status);
+    //  setId(data1.id); // Store the id globally  
+
+      console.log('DDDDDDDDD'+data1.id);
+      console.log('Data as string:', JSON.stringify(data1, null, 2));
+
+       /************ */
+
         navigation.navigate("Menu");  
       } else {
         // If login failed, handle the error
