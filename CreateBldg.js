@@ -11,7 +11,9 @@
       const { user_id } = useContext(UserContext); 
       const [bldg_name, setName] = useState('');
       const [bldg_loc, setbldg_loc] = useState('');
-      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc, uid: user_id };
+      const today = new Date();
+      const t_Date = today.toISOString();
+      const dataToSend = { bldg_name: bldg_name, bldg_loc: bldg_loc, uid: user_id, entry_date: t_Date };
       console.log('*****'+JSON.stringify(   dataToSend//{ 
         //  cust_mob: '9960059223',
          // password: 'padnyaj'
