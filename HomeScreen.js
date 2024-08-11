@@ -7,13 +7,14 @@ export default HomeScreen = ({navigation
 
 }) => {
   options = [
-    { id: 0, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png', path: 'Add_bldg' },
+    { id: 0, title: 'Add Renter', image: 'https://img.icons8.com/color/70/000000/cottage.png',
+       path: 'Add_bldg' },
     {
       id: 1,
       title: 'Update Rentor',
       image: 'https://img.icons8.com/color/70/000000/administrator-male.png',
     },
-    { id: 2, title: 'update rent', image: 'https://img.icons8.com/color/70/000000/filled-like.png' },
+    { id: 2, title: 'add patient', image: 'https://img.icons8.com/color/70/000000/filled-like.png',path: 'Add_Patient' },
     { id: 3, title: 'modify Rent', image: 'https://img.icons8.com/color/70/000000/facebook-like.png' },
     { id: 4, title: 'View Rent', image: 'https://img.icons8.com/color/70/000000/shutdown.png' },
     { id: 5, title: 'View Pending Rent', image: 'https://img.icons8.com/color/70/000000/traffic-jam.png' },
