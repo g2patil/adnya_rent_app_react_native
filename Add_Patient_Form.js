@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker'; // Import Picker component
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker component
 import { UserContext } from './UserContext';
 
-const Add_Patient_Form = ({ navigation }) => {
+const Add_Patient_Form = ({ navigation,setUser_id }) => {
   const { user_id } = useContext(UserContext);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -15,9 +15,29 @@ const Add_Patient_Form = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  const validateContactNumber = (number) => {
+    const contactNumberPattern = /^[0-9]{10}$/; // Assuming 10-digit mobile numbers
+    return contactNumberPattern.test(number);
+  };
+
   const handleRegister = () => {
-    if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber || !email || !address) {
+    if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber  || !address) {
       Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    if (!validateContactNumber(contactNumber)) {
+      Alert.alert('Error', 'Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    if (!validateEmail(email) && email  ) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
@@ -30,9 +50,10 @@ const Add_Patient_Form = ({ navigation }) => {
       email,
       address,
       userId: user_id,
+      doctorId: user_id   ,
     };
-
-    fetch('http://192.168.1.114:8082/api/patients', {
+    console.log(""+JSON.stringify(dataToSend));
+    fetch('http://192.168.1.114:8082/adnya/register/patient', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +63,18 @@ const Add_Patient_Form = ({ navigation }) => {
     .then(response => response.json())
     .then(data => {
       Alert.alert('Success', 'Patient data saved successfully');
-      navigation.navigate('Home');
+
+// Reset the form fields
+/*
+setFirstName('');
+setLastName('');
+setDateOfBirth(new Date());
+setGender('');
+setContactNumber('');
+setEmail('');
+setAddress(''); */
+
+      //navigation.navigate('Home');
     })
     .catch(error => {
       Alert.alert('Error', 'Failed to save patient data');
@@ -69,6 +101,7 @@ const Add_Patient_Form = ({ navigation }) => {
           value={firstName}
           onChangeText={setFirstName}
           placeholder="Enter first name"
+          placeholderTextColor="#5F6368" // Soft gray placeholder text
         />
 
         <Text style={styles.label}>Last Name:</Text>
@@ -77,11 +110,12 @@ const Add_Patient_Form = ({ navigation }) => {
           value={lastName}
           onChangeText={setLastName}
           placeholder="Enter last name"
+          placeholderTextColor="#5F6368" // Soft gray placeholder text
         />
 
         <Text style={styles.label}>Date of Birth:</Text>
         <TouchableOpacity onPress={showDatePickerHandler} style={styles.input}>
-          <Text>{dateOfBirth.toISOString().split('T')[0]}</Text>
+          <Text style={styles.inputText}>{dateOfBirth.toISOString().split('T')[0]}</Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
@@ -111,6 +145,7 @@ const Add_Patient_Form = ({ navigation }) => {
           onChangeText={setContactNumber}
           keyboardType="phone-pad"
           placeholder="Enter contact number"
+          placeholderTextColor="#5F6368" // Soft gray placeholder text
         />
 
         <Text style={styles.label}>Email:</Text>
@@ -120,6 +155,7 @@ const Add_Patient_Form = ({ navigation }) => {
           onChangeText={setEmail}
           keyboardType="email-address"
           placeholder="Enter email"
+          placeholderTextColor="#5F6368" // Soft gray placeholder text
         />
 
         <Text style={styles.label}>Address:</Text>
@@ -128,6 +164,7 @@ const Add_Patient_Form = ({ navigation }) => {
           value={address}
           onChangeText={setAddress}
           placeholder="Enter address"
+          placeholderTextColor="#5F6368" // Soft gray placeholder text
         />
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
@@ -144,6 +181,7 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
+    backgroundColor: '#F4F4F4', // Light gray background for calmness
   },
   container: {
     padding: 20,
@@ -157,31 +195,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: '100%',
     textAlign: 'left',
+    color: '#005EB8', // Professional blue color for labels
   },
   input: {
     borderWidth: 1,
     padding: 10,
     marginVertical: 10,
-    borderRadius: 25, // Rounded corners
-    borderColor: '#FFD700', // Golden border color
-    backgroundColor: '#FFD700', // Golden background color
+    borderRadius: 5, // Subtle rounded corners
+    borderColor: '#005EB8', // Professional blue border color
+    backgroundColor: '#FFFFFF', // White background for inputs
     width: width * 0.9, // Make input width responsive
+  },
+  inputText: {
+    color: '#005EB8', // Professional blue color for input text
   },
   picker: {
     height: 50,
     width: width * 0.9,
     marginVertical: 10,
+    color: '#005EB8', // Professional blue color for Picker text
   },
   button: {
-    backgroundColor: '#FFD700', // Golden color
-    borderRadius: 25, // Rounded corners
+    backgroundColor: '#005EB8', // Professional blue color for the button
+    borderRadius: 5, // Subtle rounded corners
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginTop: 20,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#000', // Text color
+    color: '#FFFFFF', // White text color on button
     fontSize: 16,
     fontWeight: 'bold',
   },
