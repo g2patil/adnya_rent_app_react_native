@@ -8,6 +8,7 @@ import OtherScreen from './OtherScreen';
 import CreateBldg from './CreateBldg';
 import { UserProvider } from './UserContext';
 import Add_Patient_Form from './Add_Patient_Form';
+import Add_OPD_Form from './Add_OPD_Form';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const App = () => {
         <Stack.Screen name="Menu" component={HomeScreen} />
         <Stack.Screen name="Add_bldg" component={CreateBldg} />
         <Stack.Screen name="Add_Patient" component={Add_Patient_Form} />
+        <Stack.Screen name="Add_Opd" component={Add_OPD_Form} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>
