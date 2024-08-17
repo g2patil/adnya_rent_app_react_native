@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { UserContext } from './UserContext';
+import { DataTable } from 'react-native-paper';
 
-const Add_OPD_Form = ({ navigation }) => {
+const Add_OPD_Form = ({ navigation,setUser_id }) => {
+  const { user_id } = useContext(UserContext); 
   const [patientId, setPatientId] = useState('');
   const [patientDetails, setPatientDetails] = useState(null);
   const [findings, setFindings] = useState('');
   const [treatmentPlan, setTreatmentPlan] = useState('');
   const [reasonForVisit, setReasonForVisit] = useState('');
-
+  const { width, height } = Dimensions.get('window');
   const fetchPatientDetails = () => {
     if (patientId === '') {
       Alert.alert('Error', 'Patient ID cannot be empty');
@@ -42,14 +45,15 @@ const Add_OPD_Form = ({ navigation }) => {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
-
+     console.log("Doc :--"+user_id);
     const dataToSend = {
       patientId,
+      "doctorId":user_id,
       findings,
       treatmentPlan,
       reasonForVisit,
     };
-
+    console.log("p="+JSON.stringify(dataToSend));
     fetch('http://192.168.1.114:8082/adnya/register/opd', {
       method: 'POST',
       headers: {
@@ -87,12 +91,29 @@ const Add_OPD_Form = ({ navigation }) => {
 
         {/* Conditionally render patient details if available */}
         {patientDetails && (
-          <>
-            <Text style={styles.label1}>Patient Name : </Text><Text style={styles.label2}>{patientDetails.firstName} {patientDetails.lastName}</Text>
-            <Text style={styles.label1}>Contact Number : </Text><Text style={styles.label2}> {patientDetails.contactNumber}</Text>
-            <Text style={styles.label1}>Address : </Text><Text style={styles.label2}> {patientDetails.address}</Text>
-       
-          </>
+          <View style={styles.container}>
+          <DataTable>
+            <DataTable.Header style={styles.header}>
+              <DataTable.Title style={styles.title}>Label</DataTable.Title>
+              <DataTable.Title style={styles.title}>Details</DataTable.Title>
+            </DataTable.Header>
+    
+            <DataTable.Row>
+              <DataTable.Cell style={styles.labelCell}>Patient Name:</DataTable.Cell>
+              <DataTable.Cell style={styles.valueCell}>{patientDetails.firstName} {patientDetails.lastName}</DataTable.Cell>
+            </DataTable.Row>
+    
+            <DataTable.Row>
+              <DataTable.Cell style={styles.labelCell}>Contact Number:</DataTable.Cell>
+              <DataTable.Cell style={styles.valueCell}>{patientDetails.contactNumber}</DataTable.Cell>
+            </DataTable.Row>
+    
+            <DataTable.Row>
+              <DataTable.Cell style={styles.labelCell}>Address:</DataTable.Cell>
+              <DataTable.Cell style={styles.valueCell}>{patientDetails.address}</DataTable.Cell>
+            </DataTable.Row>
+          </DataTable>
+        </View>
         )}
 
         <Text style={styles.label}>Reason for Visit:</Text>
@@ -138,12 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F4F4F4',
   },
-  container: {
-    padding: 20,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ 
   label: {
     marginVertical: 10,
     fontWeight: 'bold',
@@ -173,10 +189,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     marginVertical: 10,
+    marginLeft:10,
     borderRadius: 5,
     borderColor: '#005EB8',
     backgroundColor: '#FFFFFF',
-    width: width * 0.9,
+    width: width * 0.88,
   },
   button: {
     backgroundColor: '#005EB8',
@@ -191,6 +208,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  container: {
+    margin: 15,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: '#d3d3d3',
+    backgroundColor: '#fff',
+  },
+  header: {
+    backgroundColor: '#f4f4f4',
+  },
+  title: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  labelCell: {
+    flex: 2,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d3d3d3',
+    backgroundColor: '#f9f9f9',
+  },
+  valueCell: {
+    flex: 3,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d3d3d3',
+  },
 });
+
+
+
 
 export default Add_OPD_Form;
