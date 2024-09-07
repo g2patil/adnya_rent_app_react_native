@@ -115,5 +115,7 @@ dependencies {
         implementation jscFlavor
     }
 }
-
+project.ext.react = [
+    enableHermes: true,  // Enable or disable Hermes
+]
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

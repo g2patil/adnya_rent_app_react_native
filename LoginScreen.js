@@ -1,18 +1,22 @@
 // LoginScreen.js
 import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {Image,
 
   TouchableOpacity,StyleSheet, View, Text, Button 		,  TextInput} from 'react-native';
 import CreateBldg from "./CreateBldg";
 import { UserContext } from './UserContext';
+
 const LoginScreen = ({ navigation }) => {
    
   //const [user_id, setUser_id] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setUser_id } = useContext(UserContext); 
+  const { setUser_id } = useContext(UserContext);
+  const { setSession_Id } = useContext(UserContext); 
  // console.log('E MAIL', email);
  // console.log('Password', password);
   const dataToSend = { username: email, password: password };
@@ -41,42 +45,49 @@ const LoginScreen = ({ navigation }) => {
       }); 
       
       const data = await response.json();
-    //  console.log('*****'+response.status);
-      console.log('*****'+data);
+      console.log('*****'+response.status);
+      console.log('*****'+JSON.stringify(data));
      /* 
      
        */
        console.log("STATUS : "+response.ok);
-       console.log("DATA : "+data);
+     //  console.log("DATA : "+data);
 
 
+///*response.ok  && data=="Login successful"*/
 
-
-      if (/*response.ok*/ response.status==200 && data==true ) {  
-       /************* */
+      if ( response.status==200 && response.ok  ) {  
+        const sessionId = data.sessionId;
+            // Save the session ID
+            await AsyncStorage.setItem('sessionId', sessionId);
+            console.log("Ses :-"+sessionId);
+            setSession_Id(sessionId);
+         // const   sessionId1 = await AsyncStorage.getItem('sessionId');
        const response1 = await fetch('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionId}`,
         },
        
       }); 
-      
+      console.log("DATA : "+email);
       const data1 = await response1.json();
-    //  console.log('*****'+response.status);
+      console.log('*****'+data1);
     //  setId(data1.id); // Store the id globally  
       setUser_id(data1.id);
       console.log('DDDDDDDDD'+data1.id);
       console.log('Data as string:', JSON.stringify(data1, null, 2));
-       
-       /************ */
+     
+      
 
         navigation.navigate("Menu");  
       } else {
         // If login failed, handle the error
         // For example, display an error message
         alert("Login failed. Please try again.");
-      }
+      } 
+        
     } catch (error) {
       console.error("Error:", error);
       // Handle any unexpected errors
