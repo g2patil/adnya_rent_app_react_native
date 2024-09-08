@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { UserContext } from './UserContext';
+//import axios from 'axios';
 //import { UserContext } from './UserContext';
 import CookieManager from '@react-native-cookies/cookies';
 
@@ -14,62 +15,87 @@ const PatientSearch = () => {
     email: '',
   });
 
-  console.log("2");
+
   const [patients, setPatients] = useState([]);
   const { session_Id } = useContext(UserContext);
+  
   //////////////////
-  const searchPatients = async (searchParams) => {
-    try {
+ // const BASE_URL = __DEV__ ?   'http://192.168.1.114:8082' :'http://10.0.2.2:3000'; // Use your backend URL
+ const BASE_URL = 'http://192.168.1.114:8082';
+ const { user_id } = useContext(UserContext); 
+const searchPatients = async (searchParams) => {
+  try {
+    // Log cookies to ensure the correct session ID is being set
+    const cookies = await CookieManager.get(BASE_URL);
+    console.log('Cookies:', cookies);
+    console.log('Seeeeee Cookies:', session_Id);
+   
+    // Set cookies if necessary
 
-      CookieManager.get('http://192.168.1.114:8082')
-      .then((cookies) => {
-        console.log('Cookies:', cookies);
-      });
+    await CookieManager.set('http://192.168.1.114:8082/adnya/users/find/'+user_id+'', {
+      name: 'JSESSIONID',
+      value: session_Id,
+      path: '/',
+      expires: new Date(Date.now() + 1800 * 1000).toUTCString(),
+      httpOnly: true, // Ensure this matches your backend settings
+      secure: false,  // Set to true if using HTTPS
+    }).then((res) => {
+      console.log('Cookie set:', res);
+    });
 
+/*
+    await CookieManager.set(BASE_URL, {
+      name: 'JSESSIONID',
+    //  value: 'B22CF50921E5B571011904A4D39B2E3B',//session_Id,
+      value:  session_Id,
+      path: '/',
+      expires: new Date(Date.now() + 1800 * 1000).toUTCString(),
+      httpOnly: true, // Ensure this matches your backend settings
+      secure: false,  // Set to true if using HTTPS
+    }).then((res) => {
+      console.log('Cookie set:', res);
+    }); */
 
-      const queryParams = Object.entries(searchParams)
-        .map(([key, value]) => (value ? `${encodeURIComponent(key)}=${encodeURIComponent(value)}` : ''))
-        .filter(Boolean)
-        .join('&');
-        
-      const url = `http://192.168.1.114:8082/adnya/patient/search?${queryParams}`;
-      console.log('Request URL:', url); // Log the request URL
-      console.log('Session ID:', session_Id); // Log the session ID
-  
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        //  'Authorization': `Bearer ${session_Id}`,
-        'Cookie': `JSESSIONID=${session_Id}`,
-        credentials: 'include' 
-        }
-      });
-  
-      console.log('Response Status:', response.status); // Log the response status
-      console.log('Response Headers:', response.headers); // Log the response headers
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response Error:', response.status, response.statusText, errorText);
-        throw new Error('Network response was not ok');
-      }
-  
-      const contentType = response.headers.get('Content-Type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        console.log('Fetched patients:', data);
-        return data;
-      } else {
-        console.error('Expected JSON response but received:', contentType);
-        throw new Error('Invalid response format');
-      }
-    } catch (error) {
-      console.error('Error fetching patients:', error);
-      return [];
+    const queryParams = Object.entries(searchParams)
+      .map(([key, value]) => (value ? `${encodeURIComponent(key)}=${encodeURIComponent(value)}` : ''))
+      .filter(Boolean)
+      .join('&');
+
+    const url = `${BASE_URL}/adnya/patient/search?${queryParams}`;
+    console.log('Request URL:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include', // Ensure cookies are sent with the request
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    const responseText = await response.text();
+    console.log('Response Text:', responseText);
+
+    if (!response.ok) {
+      console.error('Response Error:', response.status, response.statusText, responseText);
+      throw new Error('Network response was not ok');
     }
-  };
-  
+
+    const contentType = response.headers.get('Content-Type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = JSON.parse(responseText);
+      console.log('Fetched patients:', data);
+      return data;
+    } else {
+      console.error('Expected JSON response but received:', contentType);
+      throw new Error('Invalid response format');
+    }
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    return [];
+  }
+};
+
   
   
   //////////////////

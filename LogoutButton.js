@@ -11,12 +11,13 @@ const LogoutButton = () => {
     try {
       const response = await fetch('http://192.168.1.114:8082/adnya/logout', {
         method: 'GET', // or 'GET' depending on your API
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session_Id}`,
+       //   'Authorization': `Bearer ${session_Id}`,
         },
       });
-
+      console.log("xxxxxxx"+session_Id);
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Logout failed:', response.status, response.statusText, errorText);

@@ -2,14 +2,14 @@
 import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import CookieManager from '@react-native-cookies/cookies';
 import {Image,
 
   TouchableOpacity,StyleSheet, View, Text, Button 		,  TextInput} from 'react-native';
 import CreateBldg from "./CreateBldg";
 import { UserContext } from './UserContext';
 
-const LoginScreen = ({ navigation }) => {
+/*const LoginScreen = ({ navigation }) => {
    
   //const [user_id, setUser_id] = useState(null);
   const [email, setEmail] = useState("");
@@ -20,12 +20,7 @@ const LoginScreen = ({ navigation }) => {
  // console.log('E MAIL', email);
  // console.log('Password', password);
   const dataToSend = { username: email, password: password };
-/*
-  console.log('*****'+JSON.stringify(   dataToSend//{ 
-    //  cust_mob: '9960059223',
-     // password: 'padnyaj'
-  //  }
-  ));*/
+
     const handleLogin = async () => {
     //  console.log('E MAIL', email);
     //  console.log('pwd', password);
@@ -47,14 +42,12 @@ const LoginScreen = ({ navigation }) => {
       const data = await response.json();
       console.log('*****'+response.status);
       console.log('*****'+JSON.stringify(data));
-     /* 
-     
-       */
+ 
        console.log("STATUS : "+response.ok);
      //  console.log("DATA : "+data);
 
 
-///*response.ok  && data=="Login successful"*/
+///*response.ok  && data=="Login successful"
 
       if ( response.status==200 && response.ok  ) {  
         const sessionId = data.sessionId;
@@ -63,11 +56,22 @@ const LoginScreen = ({ navigation }) => {
             console.log("Ses :-"+sessionId);
             setSession_Id(sessionId);
          // const   sessionId1 = await AsyncStorage.getItem('sessionId');
+         await CookieManager.set('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
+          name: 'JSESSIONID',
+          value: sessionId,
+          path: '/',
+          expires: new Date(Date.now() + 3600 * 1000).toUTCString(),
+        }).then((res) => {
+          console.log('Cookie set:', res);
+        });
+
+
        const response1 = await fetch('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
         method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionId}`,
+        //  'Authorization': `Bearer ${sessionId}`,
         },
        
       }); 
@@ -95,8 +99,64 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+*/
 
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  const { setUser_id, setSession_Id } = useContext(UserContext);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://192.168.1.114:8082/adnya/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const sessionId = data.sessionId;
+
+        await AsyncStorage.setItem('sessionId', sessionId);
+        await CookieManager.set('http://192.168.1.114:8082', {
+          name: 'JSESSIONID',
+          value: sessionId,
+          path: '/',
+          expires: new Date(Date.now() + 3600 * 1000).toUTCString(),
+        });
+
+        const userResponse = await fetch(`http://192.168.1.114:8082/adnya/users/find/${email}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser_id(userData.id);
+          setSession_Id(sessionId);
+          navigation.navigate("Menu");
+        } else {
+          alert("Failed to fetch user data.");
+        }
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An unexpected error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
   
