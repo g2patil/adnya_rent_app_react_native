@@ -3,35 +3,43 @@ import { StyleSheet, Text, View, TextInput, Alert, ScrollView, Dimensions, Touch
 import { UserContext } from './UserContext';
 import { DataTable } from 'react-native-paper';
 
-const Add_OPD_Form = ({ navigation,setUser_id }) => {
+const Add_OPD_Form = ({ navigation }) => {
   const { user_id } = useContext(UserContext); 
   const [patientId, setPatientId] = useState('');
   const [patientDetails, setPatientDetails] = useState(null);
   const [findings, setFindings] = useState('');
+  const [feesAmount, setFeesAmount] = useState('');
   const [treatmentPlan, setTreatmentPlan] = useState('');
   const [reasonForVisit, setReasonForVisit] = useState('');
-  const { width, height } = Dimensions.get('window');
+  
+  const { width } = Dimensions.get('window');
+
   const fetchPatientDetails = () => {
     if (patientId === '') {
       Alert.alert('Error', 'Patient ID cannot be empty');
       return;
     }
-
+  //  else{}
     fetch(`http://192.168.1.114:8082/adnya/patient/find/${patientId}`)
       .then(response => response.json())
       .then(data => {
         if (data) {
           setPatientDetails(data);
-          console.log("Patient data:", data);
-          // Populate the form fields with patient data as needed
+        //  console.log("Patient data:", data);
         } else {
           Alert.alert('Error', 'No patient found with the given ID');
-          setPatientDetails(null); // Clear patientDetails when no data is found
+          
+         setPatientId('');
+          setPatientDetails(null);
+          return;
         }
       })
       .catch(error => {
         Alert.alert('Error', 'Failed to fetch patient details');
-        setPatientDetails(null); // Clear patientDetails on error
+        
+        //setPatientId(null);
+        setPatientDetails(null);
+        return;
       });
   };
 
@@ -40,20 +48,43 @@ const Add_OPD_Form = ({ navigation,setUser_id }) => {
     fetchPatientDetails();
   };
 
+  // Validate and sanitize feesAmount
+  const validateFeesAmount = (amount) => {
+    // Regular expression to check if it's a positive number
+    return /^(\d+(\.\d{1,2})?)?$/.test(amount) && parseFloat(amount) > 0;
+  };
+
   const handleRegister = () => {
-    if (!patientId || !findings || !treatmentPlan || !reasonForVisit) {
-      Alert.alert('Error', 'Please fill all required fields');
+    if (!patientId) {
+      Alert.alert('Error', 'Patient ID cannot be empty');
       return;
     }
-     console.log("Doc :--"+user_id);
+    if (!findings) {
+      Alert.alert('Error', 'Findings cannot be empty');
+      return;
+    }
+    if (!treatmentPlan) {
+      Alert.alert('Error', 'Treatment Plan cannot be empty');
+      return;
+    }
+    if (!reasonForVisit) {
+      Alert.alert('Error', 'Reason for Visit cannot be empty');
+      return;
+    }
+    if (!validateFeesAmount(feesAmount)) {
+      Alert.alert('Error', 'Invalid Fees Amount');
+      return;
+    }
+    
     const dataToSend = {
       patientId,
-      "doctorId":user_id,
+      doctorId: user_id,
       findings,
+      feesAmount: parseFloat(feesAmount), // Ensure feesAmount is a number
       treatmentPlan,
       reasonForVisit,
     };
-    console.log("p="+JSON.stringify(dataToSend));
+    console.log("Data to send:", JSON.stringify(dataToSend));
     fetch('http://192.168.1.114:8082/adnya/register/opd', {
       method: 'POST',
       headers: {
@@ -63,12 +94,12 @@ const Add_OPD_Form = ({ navigation,setUser_id }) => {
     })
       .then(response => response.json())
       .then(data => {
-        Alert.alert('Success', 'OPD data saved successfully');
-        // Reset form fields
+       // Alert.alert('Success', 'OPD data saved successfully');
         setPatientId('');
         setFindings('');
         setTreatmentPlan('');
         setReasonForVisit('');
+        setFeesAmount('');
         setPatientDetails(null);
       })
       .catch(error => {
@@ -83,37 +114,35 @@ const Add_OPD_Form = ({ navigation,setUser_id }) => {
         <TextInput
           style={styles.input}
           value={patientId}
-          onChangeText={setPatientId}
-          onBlur={fetchPatientDetails}  // Call fetchPatientDetails when input loses focus
+          onChangeText={handlePatientIdChange}
           placeholder="Enter patient ID"
           placeholderTextColor="#5F6368"
         />
 
-        {/* Conditionally render patient details if available */}
         {patientDetails && (
           <View style={styles.container}>
-          <DataTable>
-            <DataTable.Header style={styles.header}>
-              <DataTable.Title style={styles.title}>Label</DataTable.Title>
-              <DataTable.Title style={styles.title}>Details</DataTable.Title>
-            </DataTable.Header>
-    
-            <DataTable.Row>
-              <DataTable.Cell style={styles.labelCell}>Patient Name:</DataTable.Cell>
-              <DataTable.Cell style={styles.valueCell}>{patientDetails.firstName} {patientDetails.lastName}</DataTable.Cell>
-            </DataTable.Row>
-    
-            <DataTable.Row>
-              <DataTable.Cell style={styles.labelCell}>Contact Number:</DataTable.Cell>
-              <DataTable.Cell style={styles.valueCell}>{patientDetails.contactNumber}</DataTable.Cell>
-            </DataTable.Row>
-    
-            <DataTable.Row>
-              <DataTable.Cell style={styles.labelCell}>Address:</DataTable.Cell>
-              <DataTable.Cell style={styles.valueCell}>{patientDetails.address}</DataTable.Cell>
-            </DataTable.Row>
-          </DataTable>
-        </View>
+            <DataTable>
+              <DataTable.Header style={styles.header}>
+                <DataTable.Title style={styles.title}>Label</DataTable.Title>
+                <DataTable.Title style={styles.title}>Details</DataTable.Title>
+              </DataTable.Header>
+
+              <DataTable.Row>
+                <DataTable.Cell style={styles.labelCell}>Patient Name:</DataTable.Cell>
+                <DataTable.Cell style={styles.valueCell}>{patientDetails.firstName} {patientDetails.lastName}</DataTable.Cell>
+              </DataTable.Row>
+
+              <DataTable.Row>
+                <DataTable.Cell style={styles.labelCell}>Contact Number:</DataTable.Cell>
+                <DataTable.Cell style={styles.valueCell}>{patientDetails.contactNumber}</DataTable.Cell>
+              </DataTable.Row>
+
+              <DataTable.Row>
+                <DataTable.Cell style={styles.labelCell}>Address:</DataTable.Cell>
+                <DataTable.Cell style={styles.valueCell}>{patientDetails.address}</DataTable.Cell>
+              </DataTable.Row>
+            </DataTable>
+          </View>
         )}
 
         <Text style={styles.label}>Reason for Visit:</Text>
@@ -143,6 +172,16 @@ const Add_OPD_Form = ({ navigation,setUser_id }) => {
           placeholderTextColor="#5F6368"
         />
 
+        <Text style={styles.label}>OPD Fees:</Text>
+        <TextInput
+          style={styles.input}
+          value={feesAmount}
+          onChangeText={setFeesAmount}
+          placeholder="Enter Fees Amount"
+          placeholderTextColor="#5F6368"
+          keyboardType="numeric" // Ensure numeric input
+        />
+
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Register OPD</Text>
         </TouchableOpacity>
@@ -151,15 +190,12 @@ const Add_OPD_Form = ({ navigation,setUser_id }) => {
   );
 };
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
     backgroundColor: '#F4F4F4',
   },
- 
   label: {
     marginVertical: 10,
     fontWeight: 'bold',
@@ -168,28 +204,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: '#005EB8',
   },
-  label1: {
-    marginVertical: 2,
-    fontWeight: 'normal',
-    fontSize: 12,
-    width: '80%',
-    textAlign: 'center',
-    color: '#005EB8',
-  },
-
-  label2: {
-    marginVertical: 2,
-    fontWeight: 'bold',
-    fontSize: 14,
-    width: '80%',
-    textAlign: 'center',
-    color: '#ff5EB8',
-  },
   input: {
     borderWidth: 1,
     padding: 10,
     marginVertical: 10,
-    marginLeft:10,
+    marginLeft: 10,
     borderRadius: 5,
     borderColor: '#005EB8',
     backgroundColor: '#FFFFFF',
@@ -234,14 +253,11 @@ const styles = StyleSheet.create({
     flex: 3,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    fontSize:12,
-    color:'#f0f0f0',
+    fontSize: 12,
+    color: '#f0f0f0',
     borderBottomWidth: 1,
     borderBottomColor: '#d3d3d3',
   },
 });
-
-
-
 
 export default Add_OPD_Form;

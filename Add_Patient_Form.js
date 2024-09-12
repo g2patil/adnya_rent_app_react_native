@@ -52,7 +52,7 @@ const Add_Patient_Form = ({ navigation,setUser_id }) => {
       userId: user_id,
       doctorId: user_id   ,
     };
-    console.log(""+JSON.stringify(dataToSend));
+   // console.log(""+JSON.stringify(dataToSend));
     fetch('http://192.168.1.114:8082/adnya/register/patient', {
       method: 'POST',
       headers: {
@@ -60,10 +60,35 @@ const Add_Patient_Form = ({ navigation,setUser_id }) => {
       },
       body: JSON.stringify(dataToSend),
     })
-    .then(response => response.json())
-    .then(data => {
-      Alert.alert('Success', 'Patient data saved successfully');
+   // .then(response => response.json())
+    .then(response => {
+      // Check the Content-Type of the response
+      const contentType = response.headers.get('Content-Type');
+  
+      if (contentType && contentType.includes('application/json')) {
 
+        Alert.alert('Success', 'Patient data saved successfully');
+        // Parse JSON response
+        return response.json().then(data => {
+          console.log("JSON Response:", data);
+        });
+      } else {
+        // Handle text/html or other types
+        return response.text().then(text => {
+          console.log("Non-JSON Response:", text);
+              if(response.status==409)
+              Alert.alert('Fail', ' Already patient Exist ');
+              else  Alert.alert('Fail', ' Error  '+response.status);
+
+
+        });
+      }
+    })
+    .then(data => {
+    
+    
+      
+       
 // Reset the form fields
 /*
 setFirstName('');
@@ -77,9 +102,20 @@ setAddress(''); */
       //navigation.navigate('Home');
     })
     .catch(error => {
-      Alert.alert('Error', 'Failed to save patient data');
+      if (error.response) {
+        // The request was made, and the server responded with a status code
+        alert("Error! Status code: " + error.response.status);
+      } else if (error.request) {
+        // The request was made, but no response was received
+        console.error("Request was made but no response:", error.request);
+        alert("No response from the server. Please try again.");
+      } else {
+        // Something else happened in setting up the request that triggered an error
+        console.error("Error setting up request:", error.message);
+        alert("An error occurred. Please try again.");
+      }
     });
-  };
+  }; 
 
   const showDatePickerHandler = () => {
     setShowDatePicker(true);

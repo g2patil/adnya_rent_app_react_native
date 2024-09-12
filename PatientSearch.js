@@ -30,31 +30,7 @@ const searchPatients = async (searchParams) => {
     console.log('Cookies:', cookies);
     console.log('Seeeeee Cookies:', session_Id);
    
-    // Set cookies if necessary
-
-    await CookieManager.set('http://192.168.1.114:8082/adnya/users/find/'+user_id+'', {
-      name: 'JSESSIONID',
-      value: session_Id,
-      path: '/',
-      expires: new Date(Date.now() + 1800 * 1000).toUTCString(),
-      httpOnly: true, // Ensure this matches your backend settings
-      secure: false,  // Set to true if using HTTPS
-    }).then((res) => {
-      console.log('Cookie set:', res);
-    });
-
-/*
-    await CookieManager.set(BASE_URL, {
-      name: 'JSESSIONID',
-    //  value: 'B22CF50921E5B571011904A4D39B2E3B',//session_Id,
-      value:  session_Id,
-      path: '/',
-      expires: new Date(Date.now() + 1800 * 1000).toUTCString(),
-      httpOnly: true, // Ensure this matches your backend settings
-      secure: false,  // Set to true if using HTTPS
-    }).then((res) => {
-      console.log('Cookie set:', res);
-    }); */
+ 
 
     const queryParams = Object.entries(searchParams)
       .map(([key, value]) => (value ? `${encodeURIComponent(key)}=${encodeURIComponent(value)}` : ''))

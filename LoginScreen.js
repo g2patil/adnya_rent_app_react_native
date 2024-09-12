@@ -9,98 +9,6 @@ import {Image,
 import CreateBldg from "./CreateBldg";
 import { UserContext } from './UserContext';
 
-/*const LoginScreen = ({ navigation }) => {
-   
-  //const [user_id, setUser_id] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const { setUser_id } = useContext(UserContext);
-  const { setSession_Id } = useContext(UserContext); 
- // console.log('E MAIL', email);
- // console.log('Password', password);
-  const dataToSend = { username: email, password: password };
-
-    const handleLogin = async () => {
-    //  console.log('E MAIL', email);
-    //  console.log('pwd', password);
- //   
-    try {
-        
-      // Perform login authentication here
-      // For example, you might send a request to your server
-      // and await the response to determine if login is successful
-      const response = await fetch('http://192.168.1.114:8082/adnya/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(   dataToSend//{ 
-             ),
-      }); 
-      
-      const data = await response.json();
-      console.log('*****'+response.status);
-      console.log('*****'+JSON.stringify(data));
- 
-       console.log("STATUS : "+response.ok);
-     //  console.log("DATA : "+data);
-
-
-///*response.ok  && data=="Login successful"
-
-      if ( response.status==200 && response.ok  ) {  
-        const sessionId = data.sessionId;
-            // Save the session ID
-            await AsyncStorage.setItem('sessionId', sessionId);
-            console.log("Ses :-"+sessionId);
-            setSession_Id(sessionId);
-         // const   sessionId1 = await AsyncStorage.getItem('sessionId');
-         await CookieManager.set('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
-          name: 'JSESSIONID',
-          value: sessionId,
-          path: '/',
-          expires: new Date(Date.now() + 3600 * 1000).toUTCString(),
-        }).then((res) => {
-          console.log('Cookie set:', res);
-        });
-
-
-       const response1 = await fetch('http://192.168.1.114:8082/adnya/users/find/'+email+'', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        //  'Authorization': `Bearer ${sessionId}`,
-        },
-       
-      }); 
-      console.log("DATA : "+email);
-      const data1 = await response1.json();
-      console.log('*****'+data1);
-    //  setId(data1.id); // Store the id globally  
-      setUser_id(data1.id);
-      console.log('DDDDDDDDD'+data1.id);
-      console.log('Data as string:', JSON.stringify(data1, null, 2));
-     
-      
-
-        navigation.navigate("Menu");  
-      } else {
-        // If login failed, handle the error
-        // For example, display an error message
-        alert("Login failed. Please try again.");
-      } 
-        
-    } catch (error) {
-      console.error("Error:", error);
-      // Handle any unexpected errors
-      alert("An unexpected error occurred. Please try again later.");
-    }
-  };
-
-*/
-
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -111,17 +19,98 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
+      console.log('Before fetch request');
       const response = await fetch('http://192.168.1.114:8082/adnya/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username: email, password }),
       });
-
+  
+      console.log('after fetch request');
       if (response.ok) {
         const data = await response.json();
         const sessionId = data.sessionId;
+  
+        await AsyncStorage.setItem('sessionId', sessionId);
+        console.log('Backend Session ID:', sessionId);
+  
+        // Check cookies
+        const cookies = await CookieManager.get('http://192.168.1.114:8082');
+        console.log('Cookies:', cookies.JSESSIONID);
+        console.log('JSESSIONID Value:', cookies.JSESSIONID ? cookies.JSESSIONID.value : 'No JSESSIONID cookie');
+  
+        // Set cookie
+     /*   await CookieManager.set('http://192.168.1.114:8082', {
+          name: 'JSESSIONID',
+          value: sessionId,
+          path: '/',
+          expires: new Date(Date.now() + 3600 * 1000).toUTCString(),
+          
+        });*/
+  
+        // Fetch user data
+        const userResponse = await fetch(`http://192.168.1.114:8082/adnya/users/find/${email}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser_id(userData.id);
+          setSession_Id(sessionId);
+          navigation.navigate("Menu");
+        } else {
+          alert("Failed to fetch user data.");
+        }
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An unexpected error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+/*
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      console.log('Before fetch request');
+      const response = await fetch('http://192.168.1.114:8082/adnya/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: email, password }),
+        
+      });
+   //   console.log('Response status:', response.status);
+  //    console.log('Response body:', await response.text());  
+
+      console.log('after fetch request');
+      if (response.ok) {
+        const data = await response.json();
+        const sessionId = data.sessionId;
+      await AsyncStorage.setItem('sessionId', data.sessionId);
+        console.log('Backend Session ID:', data.sessionId);
+
+        console.log('in response ok');
+        const checkCookies = async () => {
+          const cookies = await CookieManager.get('http://192.168.1.114:8082');
+          //console.log('Cookies: ', cookies);
+          console.log('JSESSIONID Value:', cookies.JSESSIONID.value);
+        };
+
+        checkCookies();
 
         await AsyncStorage.setItem('sessionId', sessionId);
         await CookieManager.set('http://192.168.1.114:8082', {
@@ -157,7 +146,7 @@ const LoginScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-
+*/
   return (
   
 
