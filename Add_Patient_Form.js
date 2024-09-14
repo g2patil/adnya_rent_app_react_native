@@ -81,7 +81,7 @@ const Add_Patient_Form = ({ navigation,setUser_id }) => {
               else  Alert.alert('Fail', ' Error  '+response.status);
 
 
-        });
+        })
       }
     })
     .then(data => {

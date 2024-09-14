@@ -11,7 +11,7 @@ import Add_Patient_Form from './Add_Patient_Form';
 import Add_OPD_Form from './Add_OPD_Form';
 import Patient_Search from './PatientSearch';
 import Logout_Button from './LogoutButton';
-
+import OPDSearch from './OPDSearch';
 
 const Stack = createStackNavigator();
 
@@ -27,6 +27,7 @@ const App = () => {
         <Stack.Screen name="Add_Opd" component={Add_OPD_Form} />
         <Stack.Screen name="Patient_Search" component={Patient_Search} />
         <Stack.Screen name="Logout_Button" component={Logout_Button} />
+        <Stack.Screen name="OPDSearch" component={OPDSearch} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

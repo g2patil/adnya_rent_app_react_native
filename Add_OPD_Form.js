@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Alert, ScrollView, Dimensions, TouchableOpacity, Modal, Pressable, ActivityIndicator  } from 'react-native';
 import { UserContext } from './UserContext';
 import { DataTable } from 'react-native-paper';
 
@@ -11,44 +11,53 @@ const Add_OPD_Form = ({ navigation }) => {
   const [feesAmount, setFeesAmount] = useState('');
   const [treatmentPlan, setTreatmentPlan] = useState('');
   const [reasonForVisit, setReasonForVisit] = useState('');
+ 
+  const [patientHistory, setPatientHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const { width } = Dimensions.get('window');
 
   const fetchPatientDetails = () => {
-    if (patientId === '') {
+    if (patientId.trim() === '') {
       Alert.alert('Error', 'Patient ID cannot be empty');
       return;
     }
-  //  else{}
+
     fetch(`http://192.168.1.114:8082/adnya/patient/find/${patientId}`)
       .then(response => response.json())
       .then(data => {
         if (data) {
           setPatientDetails(data);
-        //  console.log("Patient data:", data);
+          console.log("Patient data:", data);
         } else {
           Alert.alert('Error', 'No patient found with the given ID');
-          
-         setPatientId('');
+          setPatientId("");
           setPatientDetails(null);
-          return;
         }
       })
       .catch(error => {
         Alert.alert('Error', 'Failed to fetch patient details');
-        
-        //setPatientId(null);
         setPatientDetails(null);
-        return;
       });
   };
 
   const handlePatientIdChange = (value) => {
     setPatientId(value);
+  };
+
+  const handleFetchPatientDetails = () => {
     fetchPatientDetails();
   };
 
-  // Validate and sanitize feesAmount
+  const handleFocus = () => {
+    setPatientDetails(null);
+   
+  };
+
+  const handleBlur = () => {
+    fetchPatientDetails();
+  };
+
   const validateFeesAmount = (amount) => {
     // Regular expression to check if it's a positive number
     return /^(\d+(\.\d{1,2})?)?$/.test(amount) && parseFloat(amount) > 0;
@@ -75,10 +84,13 @@ const Add_OPD_Form = ({ navigation }) => {
       Alert.alert('Error', 'Invalid Fees Amount');
       return;
     }
+
+    
     
     const dataToSend = {
       patientId,
       doctorId: user_id,
+      doctorid: user_id,
       findings,
       feesAmount: parseFloat(feesAmount), // Ensure feesAmount is a number
       treatmentPlan,
@@ -94,7 +106,7 @@ const Add_OPD_Form = ({ navigation }) => {
     })
       .then(response => response.json())
       .then(data => {
-       // Alert.alert('Success', 'OPD data saved successfully');
+        Alert.alert('Success', 'OPD data saved successfully');
         setPatientId('');
         setFindings('');
         setTreatmentPlan('');
@@ -107,6 +119,33 @@ const Add_OPD_Form = ({ navigation }) => {
       });
   };
 
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+
+  
+  const fetchPatientHistory = () => {
+    setIsLoading(true);
+    fetch(`http://192.168.1.114:8082/adnya/opd/history/${patientId}/${user_id}`)
+      .then(response => response.json())
+      .then(data => {
+        setPatientHistory(data);
+        console.log(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        Alert.alert('Error', 'Failed to fetch patient history');
+        setIsLoading(false);
+      });
+  };
+
+  const toggleHistoryModal = () => {
+    if (isHistoryVisible) {
+      setIsHistoryVisible(false);
+    } else {
+      fetchPatientHistory();
+      setIsHistoryVisible(true);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.container}>
@@ -115,10 +154,12 @@ const Add_OPD_Form = ({ navigation }) => {
           style={styles.input}
           value={patientId}
           onChangeText={handlePatientIdChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur} 
           placeholder="Enter patient ID"
           placeholderTextColor="#5F6368"
         />
-
+       
         {patientDetails && (
           <View style={styles.container}>
             <DataTable>
@@ -142,6 +183,9 @@ const Add_OPD_Form = ({ navigation }) => {
                 <DataTable.Cell style={styles.valueCell}>{patientDetails.address}</DataTable.Cell>
               </DataTable.Row>
             </DataTable>
+            <TouchableOpacity style={styles.button} onPress={toggleHistoryModal}>
+            <Text style={styles.buttonText}>History</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -186,6 +230,70 @@ const Add_OPD_Form = ({ navigation }) => {
           <Text style={styles.buttonText}>Register OPD</Text>
         </TouchableOpacity>
       </View>
+
+ {/* History Modal */}
+ <Modal
+          visible={isHistoryVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setIsHistoryVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                Patient History for {patientDetails ? `${patientDetails.firstName} ${patientDetails.lastName}` : 'N/A'}
+              </Text>
+
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#005EB8" />
+              ) : (
+                <ScrollView style={styles.modalScrollView}>
+                  <DataTable>
+                    <DataTable.Header style={styles.header}>
+                      <DataTable.Title style={styles.srNoTitle}>No</DataTable.Title>
+                      <DataTable.Title style={styles.srNoTitle}>Date</DataTable.Title>
+                      <DataTable.Title style={styles.title}>Visit Reason</DataTable.Title>
+                      <DataTable.Title style={styles.title}>Finding</DataTable.Title>
+                      <DataTable.Title style={styles.title}>Treatment</DataTable.Title>
+                    </DataTable.Header>
+
+                    {patientHistory.length > 0 ? (
+                      patientHistory.map((history, index) => (
+                        <DataTable.Row key={index} style={styles.srNoTitle} >
+                          <DataTable.Cell style={styles.srNoTitle}>
+                            <Text style={styles.cellText}>{index + 1}</Text>
+                          </DataTable.Cell>
+                          <DataTable.Cell style={styles.srNoTitle}>
+                            <Text style={styles.cellText}>{history.visitDate}</Text>
+                          </DataTable.Cell>
+                          <DataTable.Cell style={styles.cell}>
+                            <Text style={styles.cellText}>{history.reasonForVisit}</Text>
+                          </DataTable.Cell>
+                          <DataTable.Cell style={styles.cell}>
+                            <Text style={styles.cellText}>{history.findings}</Text>
+                          </DataTable.Cell>
+                          <DataTable.Cell style={styles.cell}>
+                            <Text style={styles.cellText}>{history.treatmentPlan}</Text>
+                          </DataTable.Cell>
+                        </DataTable.Row>
+                      ))
+                    ) : (
+                      <DataTable.Row>
+                        <DataTable.Cell colSpan={5} style={styles.noData}>
+                          No history available
+                        </DataTable.Cell>
+                      </DataTable.Row>
+                    )}
+                  </DataTable>
+                </ScrollView>
+              )}
+              <Pressable style={styles.modalCloseButton} onPress={() => setIsHistoryVisible(false)}>
+                <Text style={styles.modalCloseButtonText}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+
     </ScrollView>
   );
 };
@@ -212,7 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#005EB8',
     backgroundColor: '#FFFFFF',
-    width: width * 0.88,
+   // width: width * 0.88,
   },
   button: {
     backgroundColor: '#005EB8',
@@ -234,11 +342,15 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     backgroundColor: '#fff',
   },
-  header: {
+  /*header: {
     backgroundColor: '#f4f4f4',
+  },*/
+  scrollView: {
+    flex: 1,
   },
   title: {
     color: '#333',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   labelCell: {
@@ -257,7 +369,85 @@ const styles = StyleSheet.create({
     color: '#f0f0f0',
     borderBottomWidth: 1,
     borderBottomColor: '#d3d3d3',
+    flexWrap: 'wrap',
   },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '80%', // Adjust to fit your needs
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5, // Adds shadow on Android
+    shadowColor: '#000', // Adds shadow on iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center', // Center-aligns the title
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: '#f4f4f4',
+  },
+  title: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  row: {
+    flexDirection: 'row', // Ensure rows are laid out in a row
+  },
+  cell: {
+    flex: 1, // Allows cell to grow and wrap text
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d3d3d3',
+  },
+  cellText: {
+    fontSize: 12,
+    color: '#333',
+    flexWrap: 'wrap', // Ensures text wraps within the cell
+    flexShrink: 1, // Allows text to shrink and fit the cell if needed
+  },
+  noData: {
+    textAlign: 'center',
+    padding: 10,
+  },
+  modalCloseButton: {
+    marginTop: 20,
+    backgroundColor: '#005EB8',
+    borderRadius: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  srNoCell: {
+    width: 10, // Adjust width as needed
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d3d3d3',
+    justifyContent: 'right', // Center-aligns content vertically
+  },
+
+
 });
 
 export default Add_OPD_Form;

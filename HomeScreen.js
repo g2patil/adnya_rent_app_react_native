@@ -8,13 +8,13 @@ export default HomeScreen = ({ navigation }) => {
     { id: 0, title: 'Add Patient', source: require('./assets/patient.png'), path: 'Add_Patient' },
     { id: 1, title: 'Search Patient', source: require('./assets/search.png'), path :'Patient_Search' },
     { id: 2, title: 'Create OPD', source: require('./assets/opd.png'), path: 'Add_Opd'  },
-    { id: 3, title: 'Add OPD', source: require('./assets/blk.png') },
-    { id: 4, title: 'View Rent', source: require('./assets/blk.png') },
+    { id: 3, title: 'Create OPD', source: require('./assets/blk.png'),path:'OPDSearch' },
+    { id: 4, title: 'Issue Medical Cretificate', source: require('./assets/blk.png') },
     { id: 5, title: 'Logout', source: require('./assets/blk.png') , path :'Logout_Button'  },
   ];
 
   const clickEventListener = (item) => {
-    Alert.alert('Option selected', item.title);
+  //  Alert.alert('Option selected', item.title);
     navigation.navigate(item.path);
   }; 
 
