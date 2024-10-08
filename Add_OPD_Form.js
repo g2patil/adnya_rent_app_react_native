@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Alert, ScrollView, Dimensions, TouchableOpacity, Modal, Pressable, ActivityIndicator  } from 'react-native';
 import { UserContext } from './UserContext';
 import { DataTable } from 'react-native-paper';
-
+import config from './my_con';
 const Add_OPD_Form = ({ navigation }) => {
   const { user_id } = useContext(UserContext); 
   const [patientId, setPatientId] = useState('');
@@ -22,8 +22,8 @@ const Add_OPD_Form = ({ navigation }) => {
       Alert.alert('Error', 'Patient ID cannot be empty');
       return;
     }
-
-    fetch(`http://192.168.1.114:8082/adnya/patient/find/${patientId}`)
+///login`
+    fetch(`${config.BASE_URL}/adnya/patient/find/${patientId}`)
       .then(response => response.json())
       .then(data => {
         if (data) {
@@ -97,7 +97,7 @@ const Add_OPD_Form = ({ navigation }) => {
       reasonForVisit,
     };
     console.log("Data to send:", JSON.stringify(dataToSend));
-    fetch('http://192.168.1.114:8082/adnya/register/opd', {
+    fetch(`${config.BASE_URL}/adnya/register/opd`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ const Add_OPD_Form = ({ navigation }) => {
   
   const fetchPatientHistory = () => {
     setIsLoading(true);
-    fetch(`http://192.168.1.114:8082/adnya/opd/history/${patientId}/${user_id}`)
+    fetch(`${config.BASE_URL}/adnya/opd/history/${patientId}/${user_id}`)
       .then(response => response.json())
       .then(data => {
         setPatientHistory(data);
@@ -226,8 +226,12 @@ const Add_OPD_Form = ({ navigation }) => {
           keyboardType="numeric" // Ensure numeric input
         />
 
+<TouchableOpacity style={styles.button} >
+          <Text style={styles.buttonText}>Create  Preskription</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Register OPD</Text>
+          <Text style={styles.buttonText}>Register .... OPD</Text>
         </TouchableOpacity>
       </View>
 
